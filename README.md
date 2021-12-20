@@ -16,7 +16,7 @@
 # 影响范围
 AC68U FirmwareVersion < 3.0.0.4.385.20633 
 </br>
-RT-AC5300 FirmwareVersion
+RT-AC5300 FirmwareVersion <3.0.0.4.384.82072
 </br>
 . . . . . .
 </br>
