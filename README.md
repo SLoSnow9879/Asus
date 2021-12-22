@@ -139,7 +139,7 @@ POC需要根据不同版本调整
             tm_month = '11'
         if tm_month == 'Dec':
             tm_month = '12'
-        tm_hour = int(tm_hour) + 8
+        tm_hour = int(tm_hour) + 8  # +8对应时区
         time_tmp = '{}-{}-{} {}:{}:{}'.format(tm_year, tm_month, tm_day, tm_hour, tm_min, tm_sec)
         print(time_tmp)
         ts = time.strptime(time_tmp, "%Y-%m-%d %H:%M:%S")
